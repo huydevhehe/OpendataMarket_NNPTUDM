@@ -1,0 +1,40 @@
+@keyframes float {
+    0% {
+        transform: translateY(0px) translateX(0px) scale(1);
+    }
+
+    50% {
+        transform: translateY(-40px) translateX(20px) scale(1.05);
+    }
+
+    100% {
+        transform: translateY(0px) translateX(0px) scale(1);
+    }
+}
+
+.animate-float {
+    animation: float 5s ease-in-out infinite;
+}
+
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    50% {
+        transform: translate(var(--dx, 300px), var(--dy, -300px)) scale(var(--scale, 2));
+    }
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.6;
+    background: var(--color, rgba(255, 100, 100, 0.4));
+    width: var(--size, 80px);
+    height: var(--size, 80px);
+    animation: float var(--duration, 1s) ease-in-out infinite;
+}
