@@ -8,7 +8,7 @@ The system provides an **online dataset marketplace** that allows users to buy, 
 ## 📌📖 Project Overview
 
 - 🎓 **Project type**: Specialized course / Graduation project  
-- 👥 **Team size**: 3 members  
+- 👥 **Team size**: 5 members  
 - 🏗️ **Architecture**: Client–Server (RESTful API)  
 - 🎯 **Objective**: Build a secure, scalable, and user-friendly platform for dataset trading and management  
 
