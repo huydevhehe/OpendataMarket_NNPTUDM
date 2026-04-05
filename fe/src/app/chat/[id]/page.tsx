@@ -19,28 +19,17 @@ interface Message {
 
 export default function ChatPage() {
     const { id: conversationId } = useParams<{ id: string }>();
-
     const [socket, setSocket] = useState<Socket | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [isSending, setIsSending] = useState(false);
-
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-
-    // --- THÊM MỚI (Tên buyer / seller cho header + message list)
-    const [buyerName, setBuyerName] = useState("");
-    const [sellerName, setSellerName] = useState("");
-    const [buyerId, setBuyerId] = useState("");
-    const [sellerId, setSellerId] = useState("");
-
+    const [partnerName, setPartnerName] = useState("Đang tải...");
     const [isLoading, setIsLoading] = useState(true);
 
     const token =
         typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
 
-    // ==========================
-    // FETCH MESSAGES + PARTNER INFO
-    // ==========================
     const fetchMessages = useCallback(async () => {
         if (!token || !conversationId) return;
 
@@ -50,22 +39,12 @@ export default function ChatPage() {
                 `http://localhost:3001/chat/conversations/${conversationId}/messages`,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-
             const json = await res.json();
             if (json.success) {
                 setMessages(json.data || []);
-
                 const decoded = decodeToken(token);
                 setCurrentUserId(decoded?.user_id || null);
-
-                // --- THÊM MỚI: lấy buyer / seller từ conversationInfo ---
-                const convo = json.conversationInfo;
-                if (convo) {
-                    setBuyerName(convo.buyer?.full_name || "Buyer");
-                    setSellerName(convo.seller?.full_name || "Seller");
-                    setBuyerId(convo.buyer?.user_id || "");
-                    setSellerId(convo.seller?.user_id || "");
-                }
+                setPartnerName(json.partnerInfo?.full_name || "Người dùng");
             }
         } catch (err) {
             console.error("❌ Lỗi tải tin nhắn:", err);
@@ -74,9 +53,6 @@ export default function ChatPage() {
         }
     }, [conversationId, token]);
 
-    // ==========================
-    // SOCKET SETUP
-    // ==========================
     useEffect(() => {
         if (!token || !conversationId) {
             window.location.href = "/login";
@@ -106,25 +82,24 @@ export default function ChatPage() {
             }
         };
 
+        // 🎧 Đăng ký listener
         s.on("receive_message", handleReceiveMessage);
         s.on("message_sent", handleMessageSent);
 
+        // ✅ Cleanup chính xác theo React rule
         return () => {
             s.off("receive_message", handleReceiveMessage);
             s.off("message_sent", handleMessageSent);
-            s.disconnect();
+            s.disconnect(); // ✅ an toàn, đúng type
         };
     }, [conversationId, fetchMessages, token]);
 
-    // ==========================
-    // SEND MESSAGE
-    // ==========================
+
     const sendMessage = () => {
         const content = input.trim();
         if (!content || !socket || !currentUserId) return;
 
         setIsSending(true);
-
         const tempId = Date.now().toString();
         const pendingMessage: Message = {
             id: tempId,
@@ -134,37 +109,20 @@ export default function ChatPage() {
             created_at: new Date().toISOString(),
             is_pending: true,
         };
-
         setMessages((prev) => [...prev, pendingMessage]);
         socket.emit("send_message", { conversation_id: conversationId, content });
         setInput("");
     };
 
-    // ==========================
-    // RENDER
-    // ==========================
     return (
         <div className="flex flex-col flex-1 bg-slate-950 text-white h-full max-h-screen">
-
-            {/* ---- TRUYỀN ĐÚNG DỮ LIỆU VÀO HEADER ---- */}
-            <ChatHeader
-                partnerName={`${buyerName} ↔ ${sellerName}`}
-                partnerFullName={`${buyerName} ↔ ${sellerName}`}
-            />
-
-            {/* ---- DANH SÁCH TIN NHẮN ---- */}
+            <ChatHeader partnerName={partnerName} />
             <MessageList
                 messages={messages}
                 currentUserId={currentUserId}
-                partnerName={`${buyerName} ↔ ${sellerName}`}
-                buyerName={buyerName}
-                sellerName={sellerName}
-                buyerId={buyerId}
-                sellerId={sellerId}
+                partnerName={partnerName}
                 isLoading={isLoading}
             />
-
-            {/* ---- INPUT ---- */}
             <ChatInput
                 input={input}
                 setInput={setInput}

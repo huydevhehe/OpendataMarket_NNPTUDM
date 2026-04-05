@@ -4,11 +4,7 @@ import { Button } from "@/components/ui/button";
 import { MoreVertical } from "lucide-react";
 
 interface ChatHeaderProps {
-    partnerName: string;          // tên user đang chat / buyer / seller
-    partnerFullName?: string;     // tên thật từ DB
-    viewerRole?: string;          // role của người đang xem (buyer / seller / admin)
-    convoBuyerName?: string;      // tên buyer trong conversation
-    convoSellerName?: string;     // tên seller trong conversation
+    partnerName: string;
 }
 
 const AvatarPlaceholder = ({ name }: { name: string }) => (
@@ -17,49 +13,18 @@ const AvatarPlaceholder = ({ name }: { name: string }) => (
     </div>
 );
 
-export default function ChatHeader({
-    partnerName,
-    partnerFullName,
-    viewerRole,
-    convoBuyerName,
-    convoSellerName,
-}: ChatHeaderProps) {
-
-    // =========================
-    // 1. TEXT PHỤ Ở DƯỚI TÊN
-    // =========================
-    let subText = "Hoạt động";
-
-    if (viewerRole === "admin") {
-        // admin đang xem một hội thoại buyer ↔ seller
-        if (convoBuyerName && convoSellerName) {
-            subText = `Đoạn chat giữa ${convoBuyerName} ↔ ${convoSellerName}`;
-        }
-    } else {
-        // buyer / seller xem thì ghi rõ
-        subText = "Bạn đang tham gia đoạn chat này";
-    }
-
-    // =========================
-    // 2. TÊN HIỂN THỊ CHÍNH
-    // =========================
-    const displayName = partnerFullName || partnerName || "Người dùng";
-
+export default function ChatHeader({ partnerName }: ChatHeaderProps) {
     return (
         <div className="flex items-center justify-between p-4 bg-slate-900 border-b border-slate-800 shadow-lg flex-shrink-0">
             <div className="flex items-center gap-3">
-                <AvatarPlaceholder name={displayName} />
-
+                <AvatarPlaceholder name={partnerName} />
                 <div>
-                    {/* TÊN Ở TRÊN */}
-                    <h2 className="font-extrabold text-lg truncate max-w-[220px] text-indigo-400">
-                        {displayName}
+                    <h2 className="font-extrabold text-lg truncate max-w-[200px] text-indigo-400">
+                        {partnerName}
                     </h2>
-
-                    {/* TEXT MÔ TẢ Ở DƯỚI */}
                     <p className="text-xs text-green-400 font-medium flex items-center gap-1">
                         <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                        {subText}
+                        Hoạt động
                     </p>
                 </div>
             </div>

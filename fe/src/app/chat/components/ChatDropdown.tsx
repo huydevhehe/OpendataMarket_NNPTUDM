@@ -62,22 +62,6 @@ export default function ChatDropdown({ token, onSelectConversation }: ChatDropdo
         const date = new Date(dateStr);
         return date.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
     };
-// ==============================================
-// 🔥 Sort admin lên đầu + tin nhắn mới nhất
-// ==============================================
-const sortedConversations = conversations
-    ?.slice()
-    .sort((a, b) => {
-        const aIsAdmin = a.seller?.role === "admin";
-        const bIsAdmin = b.seller?.role === "admin";
-
-        if (aIsAdmin && !bIsAdmin) return -1;  
-        if (!aIsAdmin && bIsAdmin) return 1;
-
-        const t1 = new Date(a.messages?.[0]?.created_at || 0).getTime();
-        const t2 = new Date(b.messages?.[0]?.created_at || 0).getTime();
-        return t2 - t1;
-    });
 
     return (
         <DropdownMenu>
@@ -105,9 +89,8 @@ const sortedConversations = conversations
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-slate-800" />
 
-                {sortedConversations && sortedConversations.length > 0 ? (
-    sortedConversations.slice(0, 5).map((c: Conversation) => {
-
+                {conversations && conversations.length > 0 ? (
+                    conversations.slice(0, 5).map((c) => {
                         const partner =
                             decoded?.user_id === c.buyer_id ? c.seller : c.buyer;
                         const name =
